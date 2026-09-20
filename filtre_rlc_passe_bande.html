@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filtre RLC — Passe-bande</title>
+<style>
+  :root{
+    --bg: #11161a;
+    --panel: #161d22;
+    --panel-alt: #1c242a;
+    --line: #2a353c;
+    --line-soft: #202a30;
+    --text: #dbe4e8;
+    --text-dim: #7c8a92;
+    --text-faint: #52616a;
+    --in-color: #e8b34d;
+    --out-color: #5fd3a6;
+    --cutoff-color: #e8574f;
+    --accent: #4fc3e8;
+    --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Consolas, monospace;
+    --font-sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --radius: 3px;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+  }
+  body { padding: 18px; }
+  .rig {
+    max-width: 1280px;
+    margin: 0 auto;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: linear-gradient(180deg, var(--panel), var(--bg) 140%);
+    overflow: hidden;
+  }
+
+  /* ---------- header / nameplate ---------- */
+  .plate {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel-alt);
+  }
+  .plate h1 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+  .plate .sub {
+    color: var(--text-dim);
+    font-size: 12.5px;
+    margin-top: 3px;
+  }
+  .fc-readout {
+    text-align: right;
+    line-height: 1.15;
+  }
+  .fc-readout .label { color: var(--text-dim); font-size: 11px; }
+  .fc-pair { display: flex; gap: 20px; }
+  .fc-pair .fc-item { text-align: right; }
+  .fc-pair .value { font-size: 19px; font-family: var(--font-mono); color: var(--accent); }
+
+  /* ---------- layout ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+  }
+  @media (max-width: 850px) {
+    .layout { grid-template-columns: 1fr; }
+    .controls { border-left: none; border-top: 1px solid var(--line); }
+  }
+
+  .controls {
+    border-left: 1px solid var(--line);
+    padding: 18px 18px 22px;
+    background: var(--panel);
+  }
+  .section-title {
+    font-size: 11px;
+    color: var(--text-faint);
+    letter-spacing: 0.4px;
+    margin: 22px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .section-title:first-child { margin-top: 0; }
+
+  .ctrl { margin-bottom: 16px; }
+  .ctrl-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .ctrl-row .name { font-size: 13px; color: var(--text); }
+  .ctrl-row .val {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--out-color);
+    font-variant-numeric: tabular-nums;
+  }
+  .ctrl-row .val.in-tone { color: var(--in-color); }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 3px;
+    background: var(--line);
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 15px; height: 15px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid #0d1215;
+    cursor: pointer;
+    margin-top: -6px;
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid #0d1215;
+    cursor: pointer;
+  }
+
+  .toggle-group {
+    display: flex;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .toggle-group button {
+    flex: 1;
+    background: var(--panel-alt);
+    color: var(--text-dim);
+    border: none;
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    padding: 8px 4px;
+    cursor: pointer;
+    border-right: 1px solid var(--line);
+  }
+  .toggle-group button:last-child { border-right: none; }
+  .toggle-group button.active {
+    background: var(--accent);
+    color: #0b1114;
+    font-weight: 600;
+  }
+
+  .readout-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+    margin-top: 4px;
+  }
+  .readout-grid .item .k { font-size: 10.5px; color: var(--text-faint); }
+  .readout-grid .item .v {
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- scope area ---------- */
+  .scopes {
+    padding: 18px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .scope-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .scope-head .title { font-size: 12px; color: var(--text-dim); letter-spacing: 0.3px; }
+  .legend { display: flex; align-items: center; gap: 12px; font-size: 11.5px; color: var(--text-dim); flex-wrap: wrap; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend i { width: 10px; height: 2px; display: inline-block; border-radius: 1px; }
+  
+  .scope-controls-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--panel-alt);
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .scope-ctrl-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--text-dim);
+  }
+  .scope-ctrl-item select {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 3px 6px;
+    font-size: 11.5px;
+    font-family: var(--font-mono);
+    outline: none;
+    cursor: pointer;
+  }
+  .scope-ctrl-item select:focus { border-color: var(--accent); }
+
+  .play-btn {
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    color: var(--text);
+    background: var(--panel-alt);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 4px 8px;
+    cursor: pointer;
+    line-height: 1;
+    margin-left: auto;
+  }
+  .play-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  canvas {
+    display: block;
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: #0d1316;
+  }
+  .bode-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 640px) {
+    .bode-pair { grid-template-columns: 1fr; }
+  }
+
+  .schematic-wrap {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: #0d1316;
+    padding: 4px 10px;
+  }
+  .schematic-wrap svg { display: block; width: 100%; max-height: 115px; }
+
+  footer.note {
+    padding: 12px 20px 18px;
+    font-size: 11.5px;
+    color: var(--text-faint);
+    border-top: 1px solid var(--line);
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    padding: 8px 20px;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel-alt);
+  }
+  .topbar a { color: var(--text-dim); text-decoration: none; font-size: 13px; }
+  .topbar a:hover { color: var(--accent); }
+  .topbar select {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    font-size: 13px;
+    padding: 5px 8px;
+  }
+
+  .btn-theory-toggle {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--accent);
+    background: var(--panel-alt);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-theory-toggle:hover { background: var(--line); border-color: var(--accent); }
+  .theory-container.hidden { display: none; }
+  .theory-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 760px) { .theory-grid { grid-template-columns: 1fr; } }
+  .theory-card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: #0d1316;
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--text-dim);
+  }
+  .theory-card h3 { margin: 0 0 6px; font-size: 12.5px; color: var(--accent); }
+  .theory-card p { margin: 3px 0; }
+  .theory-card ul { margin: 4px 0 6px; padding-left: 18px; }
+  .theory-card li { margin: 2px 0; }
+  .theory-card b { color: var(--text); }
+  .formula {
+    font-family: var(--font-mono);
+    color: var(--text);
+    background: var(--panel-alt);
+    padding: 3px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    margin: 3px 0;
+  }
+  .reg-table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 11.5px; }
+  .reg-table th, .reg-table td { border: 1px solid var(--line); padding: 4px 6px; text-align: center; }
+  .reg-table th { color: var(--text-faint); font-weight: 600; background: var(--panel-alt); }
+  .reg-table td { font-family: var(--font-mono); color: var(--text); }
+  .live {
+    margin-top: 8px; padding: 6px 8px;
+    border-left: 2px solid var(--accent);
+    background: var(--panel-alt);
+    font-family: var(--font-mono); font-size: 11.5px; color: var(--text);
+  }
+  .live.ok { border-left-color: var(--out-color); }
+  .live.warn { border-left-color: var(--cutoff-color); }
+</style>
+</head>
+<body>
+
+<div class="rig">
+  <div class="topbar">
+    <a href="index.html">← Retour à l'accueil</a>
+    <div class="filter-picker">
+      <label for="filterPicker" style="color:var(--text-faint); font-size:11.5px;">FILTRE :</label>
+      <select id="filterPicker" onchange="if(this.value) window.location.href=this.value;">
+        <option value="filtre_rc_passe_bas.html">RC — Passe-bas</option>
+        <option value="filtre_rc_passe_haut.html">RC — Passe-haut</option>
+        <option value="filtre_rlc_passe_bande.html" selected>RLC série — Passe-bande</option>
+        <option value="filtre_actif_passe_bas.html">Actif (ampli-op) — Passe-bas</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="plate">
+    <div>
+      <h1>Filtre RLC série — passe-bande passif</h1>
+      <div class="sub">Sortie prise aux bornes de la résistance R₀</div>
+    </div>
+    <div class="fc-readout">
+      <div class="fc-pair">
+        <div class="fc-item">
+          <div class="label">N₀ (résonance)</div>
+          <div class="value" id="f0Value">1.59 kHz</div>
+        </div>
+        <div class="fc-item">
+          <div class="label">Q (qualité)</div>
+          <div class="value" id="qValue">5.0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+    
+    <!-- GAUCHE -->
+    <div class="scopes">
+
+      <!-- SCHÉMA -->
+      <div class="scope-block">
+        <div class="scope-head"><span class="title">SCHÉMA DU MONTAGE</span></div>
+        <div class="schematic-wrap">
+          <svg viewBox="0 0 420 110" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="currentColor"/>
+              </marker>
+            </defs>
+
+            <!-- GBF -->
+            <circle cx="40" cy="55" r="14" stroke="#4fc3e8" stroke-width="1.5" fill="none"/>
+            <text x="40" y="58" fill="#dbe4e8" font-size="9" font-weight="bold" text-anchor="middle">GBF</text>
+            <path d="M40,15 L40,41 M40,69 L40,95" stroke="#7c8a92" stroke-width="1.5"/>
+
+            <!-- Flèche u_E(t) -->
+            <g color="#e568a8">
+              <line x1="68" y1="88" x2="68" y2="22" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)"/>
+              <text x="75" y="58" fill="currentColor" font-size="12" font-weight="bold">u<tspan baseline-shift="sub" font-size="8">E</tspan>(t)</text>
+            </g>
+
+            <!-- Ligne supérieure + Voie Y1 + K -->
+            <path d="M40,15 L95,15" stroke="#7c8a92" stroke-width="1.5"/>
+            <path d="M95,15 L95,7" stroke="#7c8a92" stroke-width="1.2" marker-end="url(#arrow)"/>
+            <text x="95" y="0" fill="#dbe4e8" font-size="10" font-weight="bold" text-anchor="middle">Y<tspan baseline-shift="sub" font-size="7">1</tspan></text>
+            <text x="85" y="12" fill="#dbe4e8" font-size="11" font-weight="bold">E</text>
+
+            <!-- Interrupteur K -->
+            <line x1="95" y1="15" x2="115" y2="8" stroke="#dbe4e8" stroke-width="1.5"/>
+            <circle cx="95" cy="15" r="2" fill="#7c8a92"/>
+            <circle cx="120" cy="15" r="2" fill="#7c8a92"/>
+            <text x="107" y="0" fill="#dbe4e8" font-size="11">K</text>
+
+            <!-- Condensateur C -->
+            <path d="M120,15 L145,15" stroke="#7c8a92" stroke-width="1.5"/>
+            <line x1="145" y1="3" x2="145" y2="27" stroke="#5fd3a6" stroke-width="2"/>
+            <line x1="152" y1="3" x2="152" y2="27" stroke="#5fd3a6" stroke-width="2"/>
+            <path d="M152,15 L180,15" stroke="#7c8a92" stroke-width="1.5"/>
+            <text x="148" y="-2" fill="#5fd3a6" font-size="11" font-weight="bold" text-anchor="middle">C</text>
+
+            <!-- Inductance L, r -->
+            <path d="M180,15 A7,7 0 0 1 194,15 A7,7 0 0 1 208,15 A7,7 0 0 1 222,15 A7,7 0 0 1 236,15" stroke="#4fc3e8" stroke-width="1.5" fill="none"/>
+            <path d="M236,15 L280,15" stroke="#7c8a92" stroke-width="1.5"/>
+            <text x="208" y="-2" fill="#4fc3e8" font-size="11" font-weight="bold" text-anchor="middle">L, r</text>
+
+            <!-- S et Voie Y2 -->
+            <text x="268" y="10" fill="#dbe4e8" font-size="11" font-weight="bold">S</text>
+            <path d="M280,15 L330,15" stroke="#7c8a92" stroke-width="1.5" marker-end="url(#arrow)"/>
+            <text x="338" y="13" fill="#dbe4e8" font-size="10" font-weight="bold">Y<tspan baseline-shift="sub" font-size="7">2</tspan></text>
+
+            <!-- Résistance R0 -->
+            <path d="M280,15 L280,35" stroke="#7c8a92" stroke-width="1.5"/>
+            <rect x="273" y="35" width="14" height="30" fill="none" stroke="#e8b34d" stroke-width="1.5"/>
+            <path d="M280,65 L280,95" stroke="#7c8a92" stroke-width="1.5"/>
+            <text x="252" y="53" fill="#e8b34d" font-size="11" font-weight="bold">R<tspan baseline-shift="sub" font-size="8">0</tspan></text>
+
+            <!-- Flèche u_S(t) -->
+            <g color="#4fc3e8">
+              <line x1="302" y1="88" x2="302" y2="22" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)"/>
+              <text x="310" y="58" fill="currentColor" font-size="12" font-weight="bold">u<tspan baseline-shift="sub" font-size="8">S</tspan>(t)</text>
+            </g>
+
+            <!-- Masse M -->
+            <path d="M40,95 L280,95" stroke="#7c8a92" stroke-width="1.5"/>
+            <text x="288" y="92" fill="#dbe4e8" font-size="12" font-weight="bold">M</text>
+
+            <!-- Symbole Terre -->
+            <line x1="270" y1="95" x2="290" y2="95" stroke="#7c8a92" stroke-width="1.5"/>
+            <line x1="273" y1="99" x2="287" y2="99" stroke="#7c8a92" stroke-width="1.5"/>
+            <line x1="276" y1="103" x2="284" y2="103" stroke="#7c8a92" stroke-width="1.5"/>
+            <line x1="279" y1="107" x2="281" y2="107" stroke="#7c8a92" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- OSCILLOSCOPE ET CONTRÔLES DE SENSIBILITÉ -->
+      <div class="scope-block">
+        <div class="scope-head">
+          <span class="title">OSCILLOSCOPE — DOMAINE TEMPOREL</span>
+          <span class="legend">
+            <span><i style="background:var(--in-color)"></i>Voie 1 (Entrée)</span>
+            <span><i style="background:var(--out-color)"></i>Voie 2 (Sortie)</span>
+          </span>
+        </div>
+
+        <!-- BARRE DE RÉGLAGE DES SENSIBILITÉS EN MENUS DÉROULANTS -->
+        <div class="scope-controls-bar">
+          <div class="scope-ctrl-item">
+            <span style="color:var(--in-color); font-weight:bold;">CH1 (Y1):</span>
+            <select id="sensCh1">
+              <option value="0.1">0.1 V/div</option>
+              <option value="0.2">0.2 V/div</option>
+              <option value="0.5" selected>0.5 V/div</option>
+              <option value="1">1.0 V/div</option>
+              <option value="2">2.0 V/div</option>
+              <option value="5">5.0 V/div</option>
+            </select>
+          </div>
+
+          <div class="scope-ctrl-item">
+            <span style="color:var(--out-color); font-weight:bold;">CH2 (Y2):</span>
+            <select id="sensCh2">
+              <option value="0.1">0.1 V/div</option>
+              <option value="0.2">0.2 V/div</option>
+              <option value="0.5" selected>0.5 V/div</option>
+              <option value="1">1.0 V/div</option>
+              <option value="2">2.0 V/div</option>
+              <option value="5">5.0 V/div</option>
+            </select>
+          </div>
+
+          <div class="scope-ctrl-item">
+            <span style="color:var(--accent); font-weight:bold;">Base de temps:</span>
+            <select id="sensTime">
+              <option value="0.00005">50 µs/div</option>
+              <option value="0.0001">100 µs/div</option>
+              <option value="0.0002" selected>200 µs/div</option>
+              <option value="0.0005">500 µs/div</option>
+              <option value="0.001">1 ms/div</option>
+              <option value="0.002">2 ms/div</option>
+              <option value="0.005">5 ms/div</option>
+              <option value="0.01">10 ms/div</option>
+            </select>
+          </div>
+
+          <button id="playPauseBtn" class="play-btn">⏸ Pause</button>
+        </div>
+
+        <!-- Canvas d'oscilloscope -->
+        <canvas id="scopeCanvas" height="360"></canvas>
+      </div>
+
+      <div class="bode-pair">
+        <div class="scope-block">
+          <div class="scope-head"><span class="title">GAIN (dB) vs FRÉQUENCE</span></div>
+          <canvas id="magCanvas" height="180"></canvas>
+        </div>
+        <div class="scope-block">
+          <div class="scope-head"><span class="title">PHASE (°) vs FRÉQUENCE</span></div>
+          <canvas id="phaseCanvas" height="180"></canvas>
+        </div>
+      </div>
+
+      <button id="toggleTheoryBtn" class="btn-theory-toggle">APERÇU THÉORIQUE, DÉPHASAGE (FRESNEL) & BANDE PASSANTE</button>
+
+      <div id="theoryContainer" class="theory-container hidden">
+        <div class="theory-grid">
+
+          <div class="theory-card">
+            <h3>Aperçu théorique — régime sinusoïdal</h3>
+            <p>Loi des mailles du circuit RLC série (résistance r de la bobine négligée devant R₀, comme dans la simulation) :</p>
+            <div class="formula">u<sub>E</sub>(t) = u<sub>R</sub>(t) + u<sub>L</sub>(t) + u<sub>C</sub>(t)</div>
+            <p>Le même courant i(t) traverse R₀, L et C : c'est la <b>référence des phases</b> (vecteur horizontal). Avec ω = 2πN, et la sortie u<sub>S</sub> = u<sub>R</sub> :</p>
+            <ul>
+              <li>U<sub>R</sub> = R₀·I<sub>m</sub> : <b>en phase</b> avec i ;</li>
+              <li>U<sub>L</sub> = Lω·I<sub>m</sub> : <b>en avance de 90°</b> sur i ;</li>
+              <li>U<sub>C</sub> = I<sub>m</sub> / (Cω) : <b>en retard de 90°</b> sur i.</li>
+            </ul>
+            <p>U<sub>L</sub> et U<sub>C</sub> sont opposés : leur somme vaut U<sub>L</sub> − U<sub>C</sub>, perpendiculaire à U<sub>R</sub> (Pythagore) :</p>
+            <div class="formula">U<sub>E</sub>² = U<sub>R</sub>² + (U<sub>L</sub> − U<sub>C</sub>)²</div>
+            <p>Transmittance :</p>
+            <div class="formula">T = U<sub>S</sub>/U<sub>E</sub> = R₀ / √(R₀² + (Lω − 1/(Cω))²)</div>
+          </div>
+
+          <div class="scope-block">
+            <div class="scope-head">
+              <span class="title">REPRÉSENTATION DE FRESNEL</span>
+              <span class="legend">
+                <span><i style="background:var(--out-color)"></i>U<sub>R</sub> = U<sub>S</sub></span>
+                <span><i style="background:var(--accent)"></i>U<sub>L</sub></span>
+                <span><i style="background:#c792ea"></i>U<sub>C</sub></span>
+                <span><i style="background:var(--in-color)"></i>U<sub>E</sub></span>
+              </span>
+            </div>
+            <canvas id="fresnelCanvas" height="230"></canvas>
+          </div>
+
+          <div class="theory-card">
+            <h3>Déphasage φ (d'après Fresnel)</h3>
+            <p>φ est le déphasage de u<sub>S</sub> par rapport à u<sub>E</sub> : c'est l'opposé de l'angle entre U<sub>E</sub> et la référence i. Dans le triangle rectangle :</p>
+            <div class="formula">tan φ = (U<sub>C</sub> − U<sub>L</sub>) / U<sub>R</sub> = (1/(Cω) − Lω) / R₀</div>
+            <p>Avec N<sub>0</sub> = 1 / (2π√(LC)) et Q = (1/R₀)√(L/C) :</p>
+            <div class="formula">tan φ = Q · (N<sub>0</sub>/N − N/N<sub>0</sub>)</div>
+            <div class="formula">cos φ = U<sub>R</sub> / U<sub>E</sub> = T</div>
+            <ul>
+              <li><b>N &lt; N<sub>0</sub></b> : U<sub>C</sub> &gt; U<sub>L</sub>, circuit capacitif, φ &gt; 0 (u<sub>S</sub> en avance), φ → +90° quand N → 0 ;</li>
+              <li><b>N = N<sub>0</sub></b> : U<sub>L</sub> = U<sub>C</sub> se compensent, U<sub>E</sub> = U<sub>R</sub>, φ = 0 ;</li>
+              <li><b>N &gt; N<sub>0</sub></b> : U<sub>L</sub> &gt; U<sub>C</sub>, circuit inductif, φ &lt; 0 (u<sub>S</sub> en retard), φ → −90° quand N → ∞.</li>
+            </ul>
+            <div class="live" id="thPhiLive"></div>
+          </div>
+
+          <div class="theory-card">
+            <h3>Bande passante à −3 dB</h3>
+            <p>À la résonance N = N<sub>0</sub>, T<sub>max</sub> = 1 (0 dB). La bande passante est l'ensemble des fréquences pour lesquelles T ≥ 1/√2, c'est-à-dire U<sub>R</sub> ≥ U<sub>E</sub>/√2. D'après Fresnel :</p>
+            <div class="formula">T = 1 / √(1 + Q²(N/N<sub>0</sub> − N<sub>0</sub>/N)²)</div>
+            <div class="formula">T ≥ 1/√2 ⇔ |U<sub>L</sub> − U<sub>C</sub>| ≤ U<sub>R</sub> ⇔ |tan φ| ≤ 1</div>
+            <p>Aux fréquences de coupure N<sub>1</sub> et N<sub>2</sub> : |U<sub>L</sub> − U<sub>C</sub>| = U<sub>R</sub>, U<sub>E</sub> = U<sub>R</sub>√2 et φ = ±45°. Bande passante : <span class="formula">[ N<sub>1</sub> ; N<sub>2</sub> ]</span></p>
+            <div class="formula">N<sub>2</sub> − N<sub>1</sub> = R₀/(2πL) = N<sub>0</sub>/Q</div>
+            <div class="formula">N<sub>1</sub> · N<sub>2</sub> = N<sub>0</sub>²</div>
+            <p>Plus Q est grand, plus la bande est étroite (filtre sélectif). À N<sub>0</sub>, il y a surtension : U<sub>L</sub> = U<sub>C</sub> = Q·U<sub>E</sub>.</p>
+            <table class="reg-table">
+              <tr><th>N</th><th>T</th><th>G</th><th>φ</th></tr>
+              <tr><td>N ≪ N<sub>0</sub></td><td>≈ N/(Q·N<sub>0</sub>)</td><td>≪ −3 dB</td><td>→ +90°</td></tr>
+              <tr><td>N = N<sub>1</sub></td><td>0,707</td><td>−3 dB</td><td>+45°</td></tr>
+              <tr><td>N = N<sub>0</sub></td><td>1</td><td>0 dB</td><td>0°</td></tr>
+              <tr><td>N = N<sub>2</sub></td><td>0,707</td><td>−3 dB</td><td>−45°</td></tr>
+              <tr><td>N ≫ N<sub>0</sub></td><td>≈ N<sub>0</sub>/(Q·N)</td><td>≪ −3 dB</td><td>→ −90°</td></tr>
+            </table>
+            <p>Sur le diagramme de gain, la zone verte représente la bande passante.</p>
+            <div class="live" id="thBandLive"></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DROITE : Panneau des Paramètres -->
+    <div class="controls">
+
+      <div class="section-title">COMPOSANTS</div>
+
+      <div class="ctrl">
+        <div class="ctrl-row"><span class="name">Inductance L</span><span class="val" id="lVal">100 mH</span></div>
+        <input type="range" id="lSlider" min="0" max="1000" value="667">
+      </div>
+
+      <div class="ctrl">
+        <div class="ctrl-row"><span class="name">Capacité C</span><span class="val" id="cVal">100 nF</span></div>
+        <input type="range" id="cSlider" min="0" max="1000" value="400">
+      </div>
+
+      <div class="ctrl">
+        <div class="ctrl-row"><span class="name">Résistance R<sub>0</sub></span><span class="val" id="r0Val">200 Ω</span></div>
+        <input type="range" id="r0Slider" min="0" max="1000" value="75">
+      </div>
+
+      <div class="section-title">SIGNAL D'ENTRÉE</div>
+
+      <div class="ctrl">
+        <div class="ctrl-row"><span class="name">Forme d'onde</span></div>
+        <div class="toggle-group" role="group">
+          <button id="waveSine" class="active">Sinusoïde</button>
+          <button id="waveSquare">Carré</button>
+        </div>
+      </div>
+
+      <div class="ctrl">
+        <div class="ctrl-row"><span class="name">Fréquence N</span><span class="val in-tone" id="fVal">1.00 kHz</span></div>
+        <input type="range" id="fSlider" min="0" max="1000" value="600">
+      </div>
+
+      <div class="ctrl">
+        <div class="ctrl-row"><span class="name">Amplitude</span><span class="val in-tone" id="aVal">1.0 V</span></div>
+        <input type="range" id="aSlider" min="10" max="50" value="30">
+      </div>
+
+      <div class="section-title">MESURES</div>
+      <div class="readout-grid">
+        <div class="item"><div class="k">N₁ (bas)</div><div class="v" id="f1Val">1.44 kHz</div></div>
+        <div class="item"><div class="k">N₂ (haut)</div><div class="v" id="f2Val">1.76 kHz</div></div>
+        <div class="item"><div class="k">T (transmittance)</div><div class="v" id="tVal">0.80</div></div>
+        <div class="item"><div class="k">déphasage</div><div class="v" id="phaseVal">-32°</div></div>
+        <div class="item"><div class="k">gain G</div><div class="v" id="gainVal">-1.9 dB</div></div>
+        <div class="item"><div class="k">ampl. sortie</div><div class="v" id="ampOutVal">1.20 V</div></div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <footer class="note">
+    Montage RLC série, sortie prise aux bornes de R₀ : À la résonance N₀ = 1/(2π√(LC)), la réactance s'annule et le gain vaut 1 (0 dB) : toute la tension d'entrée se retrouve sur R₀. Le facteur de qualité Q = (1/R₀)√(L/C) fixe la sélectivité.
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const state = {
+    R0: 200,
+    L: 0.1,
+    C: 100e-9,
+    freq: 1500,
+    amp: 1.5,
+    wave: "sine",
+    playing: true,
+    showTheory: false
+  };
+
+  const el = {
+    r0Slider: document.getElementById("r0Slider"),
+    lSlider: document.getElementById("lSlider"),
+    cSlider: document.getElementById("cSlider"),
+    fSlider: document.getElementById("fSlider"),
+    aSlider: document.getElementById("aSlider"),
+    r0Val: document.getElementById("r0Val"),
+    lVal: document.getElementById("lVal"),
+    cVal: document.getElementById("cVal"),
+    fVal: document.getElementById("fVal"),
+    aVal: document.getElementById("aVal"),
+    f0Value: document.getElementById("f0Value"),
+    qValue: document.getElementById("qValue"),
+    f1Val: document.getElementById("f1Val"),
+    f2Val: document.getElementById("f2Val"),
+    tVal: document.getElementById("tVal"),
+    phaseVal: document.getElementById("phaseVal"),
+    gainVal: document.getElementById("gainVal"),
+    waveSine: document.getElementById("waveSine"),
+    waveSquare: document.getElementById("waveSquare"),
+    playPauseBtn: document.getElementById("playPauseBtn"),
+    ampOutVal: document.getElementById("ampOutVal"),
+    toggleTheoryBtn: document.getElementById("toggleTheoryBtn"),
+    theoryContainer: document.getElementById("theoryContainer"),
+    fresnelCanvas: document.getElementById("fresnelCanvas"),
+    thPhiLive: document.getElementById("thPhiLive"),
+    thBandLive: document.getElementById("thBandLive"),
+    scopeCanvas: document.getElementById("scopeCanvas"),
+    magCanvas: document.getElementById("magCanvas"),
+    phaseCanvas: document.getElementById("phaseCanvas"),
+    sensCh1: document.getElementById("sensCh1"),
+    sensCh2: document.getElementById("sensCh2"),
+    sensTime: document.getElementById("sensTime"),
+  };
+
+  function sliderToR(v){ return Math.pow(10, 2 + (v/1000)*4); }
+  function sliderToL(v){ return Math.pow(10, -3 + (v/1000)*3); }
+  function sliderToC(v){ return Math.pow(10, -9 + (v/1000)*5); }
+  function sliderToF(v){ return Math.pow(10, 0 + (v/1000)*5.301); }
+  function sliderToA(v){ return v/10; }
+
+  function fmtEng(value, unit){
+    if (value === 0) return "0 " + unit;
+    const abs = Math.abs(value);
+    const prefixes = [
+      {exp: 9,  sym: "G"}, {exp: 6, sym: "M"}, {exp: 3, sym: "k"},
+      {exp: 0,  sym: ""},
+      {exp: -3, sym: "m"}, {exp: -6, sym: "µ"}, {exp: -9, sym: "n"}, {exp: -12, sym: "p"}
+    ];
+    for (const p of prefixes){
+      if (abs >= Math.pow(10, p.exp) * 0.999){
+        const scaled = value / Math.pow(10, p.exp);
+        const digits = scaled >= 100 ? 0 : (scaled >= 10 ? 1 : 2);
+        return scaled.toFixed(digits) + " " + p.sym + unit;
+      }
+    }
+    return value.toExponential(2) + " " + unit;
+  }
+
+  function omega0(){ return 1 / Math.sqrt(state.L * state.C); }
+  function f0(){ return omega0() / (2*Math.PI); }
+  function Qfactor(){ return (1/state.R0) * Math.sqrt(state.L / state.C); }
+  function f1(){
+    const R = state.R0, L = state.L, C = state.C;
+    const w = (-R + Math.sqrt(R*R + 4*L/C)) / (2*L);
+    return w / (2*Math.PI);
+  }
+  function f2(){
+    const R = state.R0, L = state.L, C = state.C;
+    const w = (R + Math.sqrt(R*R + 4*L/C)) / (2*L);
+    return w / (2*Math.PI);
+  }
+  function reactance(f){
+    const w = 2*Math.PI*f;
+    return w*state.L - 1/(w*state.C);
+  }
+  function magnitudeAt(f){
+    const X = reactance(f);
+    return state.R0 / Math.sqrt(state.R0*state.R0 + X*X);
+  }
+  function phaseAt(f){
+    return -Math.atan(reactance(f) / state.R0);
+  }
+
+  function measuredOutputPeak(){
+    const period = 1 / state.freq;
+    const M = 200;
+    let peak = 0;
+    for (let i=0;i<M;i++){
+      const t = (i/M) * period;
+      const v = Math.abs(outputSample(t));
+      if (v > peak) peak = v;
+    }
+    return peak;
+  }
+
+  function updateReadouts(){
+    el.f0Value.textContent = fmtEng(f0(), "Hz");
+    el.qValue.textContent = Qfactor().toFixed(1);
+    el.f1Val.textContent = fmtEng(f1(), "Hz");
+    el.f2Val.textContent = fmtEng(f2(), "Hz");
+    el.r0Val.textContent = fmtEng(state.R0, "Ω");
+    el.lVal.textContent = fmtEng(state.L, "H");
+    el.cVal.textContent = fmtEng(state.C, "F");
+    el.fVal.textContent = fmtEng(state.freq, "Hz");
+    el.aVal.textContent = state.amp.toFixed(1) + " V";
+
+    const outAmp = measuredOutputPeak();
+    const T = outAmp / state.amp;
+    const G = 20 * Math.log10(T);
+
+    el.tVal.textContent = T.toFixed(2);
+    el.phaseVal.textContent = (phaseAt(state.freq) * 180/Math.PI).toFixed(0) + "°";
+    el.gainVal.textContent = G.toFixed(1) + " dB";
+    el.ampOutVal.textContent = outAmp.toFixed(2) + " V";
+    updateTheory();
+    drawFresnel();
+  }
+
+  function updateTheory(){
+    const N = state.freq, N0 = f0(), Q = Qfactor(), mag = magnitudeAt(N);
+    const deg = phaseAt(N) * 180 / Math.PI;
+    const k = Q * (N0 / N - N / N0);                 // tan φ
+    const Z = Math.sqrt(state.R0 * state.R0 + Math.pow(reactance(N), 2));
+    const w = 2 * Math.PI * N;
+    el.thPhiLive.innerHTML = "N = " + fmtEng(N, "Hz") + " ; N<sub>0</sub> = " + fmtEng(N0, "Hz") +
+      "<br>tan φ = Q(N<sub>0</sub>/N − N/N<sub>0</sub>) = " + k.toFixed(2) + " → <b>φ = " + (deg >= 0 ? "+" : "") + deg.toFixed(1) + "°</b>" +
+      "<br>U<sub>L</sub>/U<sub>E</sub> = " + (w * state.L / Z).toFixed(2) + " ; U<sub>C</sub>/U<sub>E</sub> = " + (1 / (w * state.C) / Z).toFixed(2);
+    const inBand = N >= f1() * 0.9999 && N <= f2() * 1.0001;
+    el.thBandLive.innerHTML = (inBand ? "N<sub>1</sub> &le; N &le; N<sub>2</sub> : dans la bande passante" : "N hors de [N<sub>1</sub> ; N<sub>2</sub>] : hors bande passante") +
+      "<br>N<sub>1</sub> = " + fmtEng(f1(), "Hz") + " ; N<sub>2</sub> = " + fmtEng(f2(), "Hz") +
+      "<br>T = " + mag.toFixed(3) + " ; G = " + (20 * Math.log10(mag)).toFixed(1) + " dB ; Q = " + Q.toFixed(1);
+    el.thBandLive.classList.toggle("ok", inBand);
+    el.thBandLive.classList.toggle("warn", !inBand);
+  }
+
+  el.r0Slider.addEventListener("input", () => { state.R0 = sliderToR(+el.r0Slider.value); updateReadouts(); drawBode(); });
+  el.lSlider.addEventListener("input", () => { state.L = sliderToL(+el.lSlider.value); updateReadouts(); drawBode(); });
+  el.cSlider.addEventListener("input", () => { state.C = sliderToC(+el.cSlider.value); updateReadouts(); drawBode(); });
+  el.fSlider.addEventListener("input", () => { state.freq = sliderToF(+el.fSlider.value); updateReadouts(); drawBode(); });
+  el.aSlider.addEventListener("input", () => { state.amp = sliderToA(+el.aSlider.value); updateReadouts(); });
+
+  el.toggleTheoryBtn.addEventListener("click", () => {
+    state.showTheory = !state.showTheory;
+    el.theoryContainer.classList.toggle("hidden", !state.showTheory);
+    drawFresnel();
+    drawBode();
+  });
+
+  el.playPauseBtn.addEventListener("click", () => {
+    state.playing = !state.playing;
+    el.playPauseBtn.textContent = state.playing ? "⏸ Pause" : "▶ Lecture";
+  });
+
+  el.waveSine.addEventListener("click", () => setWave("sine"));
+  el.waveSquare.addEventListener("click", () => setWave("square"));
+  function setWave(w){
+    state.wave = w;
+    el.waveSine.classList.toggle("active", w === "sine");
+    el.waveSquare.classList.toggle("active", w === "square");
+  }
+
+  function fitCanvas(canvas){
+    const cssW = canvas.clientWidth || canvas.parentElement.clientWidth;
+    const cssH = +canvas.getAttribute("height");
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    canvas.style.height = cssH + "px";
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { ctx, w: cssW, h: cssH };
+  }
+
+  // ================= FRESNEL (tensions) =================
+  function drawFresnel(){
+    if (!state.showTheory) return;
+    const { ctx, w, h } = fitCanvas(el.fresnelCanvas);
+    ctx.clearRect(0, 0, w, h);
+
+    // Référence : le courant i (horizontal). U_L vers le haut (+90°), U_C vers le bas (−90°).
+    const N = state.freq, wN = 2 * Math.PI * N, R = state.R0;
+    const X = reactance(N), Z = Math.sqrt(R * R + X * X);
+    const Ur = state.amp * R / Z;
+    const Ul = state.amp * wN * state.L / Z;
+    const Uc = state.amp / (wN * state.C) / Z;
+    const Ue = state.amp, D = Ul - Uc;               // D = U_L − U_C
+
+    const ox = 48, m = 24;
+    const yMax = Ul, yMin = Math.min(0, D);
+    const span = Math.max(yMax - yMin, 1e-12);
+    const scale = Math.min((h - 2 * m) / span, (w - ox - 90) / Ur);
+    const oy = (h - span * scale) / 2 + yMax * scale;
+
+    const x1 = ox + Ur * scale, x2 = x1 + 16;
+    const yL = oy - Ul * scale, yE = oy - D * scale;
+
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#33414a";
+    ctx.beginPath(); ctx.moveTo(ox - 10, oy); ctx.lineTo(w - 10, oy); ctx.stroke();
+    ctx.fillStyle = "#7c8a92";
+    ctx.font = "10px sans-serif";
+    ctx.fillText("i (référence)", w - 78, oy + 14);
+
+    // U_E (dessiné en dessous), puis la chaîne U_R -> U_L -> U_C
+    drawVector(ctx, ox, oy, x1, yE, "#e8b34d", null, 3);
+    drawVector(ctx, ox, oy, x1, oy, "#5fd3a6", null, 1.8);
+    drawVector(ctx, x1, oy, x1, yL, "#4fc3e8", null, 1.8);
+    ctx.save();
+    ctx.setLineDash([2, 3]);
+    ctx.strokeStyle = "#52616a";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x1, yL); ctx.lineTo(x2, yL); ctx.moveTo(x2, yE); ctx.lineTo(x1, yE); ctx.stroke();
+    ctx.restore();
+    drawVector(ctx, x2, yL, x2, yE, "#c792ea", null, 1.8);
+
+    // Étiquettes
+    ctx.font = "10.5px sans-serif";
+    ctx.fillStyle = "#5fd3a6"; ctx.fillText("U_R", (ox + x1) / 2 - 6, oy + 14);
+    if (Math.abs(oy - yL) > 12){ ctx.fillStyle = "#4fc3e8"; ctx.fillText("U<sub>L</sub>", x1 - 26, (oy + yL) / 2 + 4); }
+    if (Math.abs(yL - yE) > 12){ ctx.fillStyle = "#c792ea"; ctx.fillText("U_C", x2 + 5, (yL + yE) / 2 + 4); }
+    if (Math.hypot(x1 - ox, yE - oy) > 20){ ctx.fillStyle = "#e8b34d"; ctx.fillText("U_E", (ox + x1) / 2 - 26, (oy + yE) / 2 - 4); }
+
+    // Angle φ = −(angle de U_E avec i)
+    const theta = Math.atan2(D, Ur);
+    ctx.strokeStyle = "#e8574f";
+    ctx.beginPath(); ctx.arc(ox, oy, 24, Math.min(-theta, 0), Math.max(-theta, 0), false); ctx.stroke();
+    ctx.fillStyle = "#e8574f";
+    const aMag = Math.max(Math.abs(theta / 2), 0.15), a = theta >= 0 ? -aMag : aMag;
+    const phiDeg = -theta * 180 / Math.PI;
+    ctx.fillText("φ = " + (phiDeg >= 0 ? "+" : "") + phiDeg.toFixed(0) + "°", ox + 40 * Math.cos(a) - 6, oy + 40 * Math.sin(a) + 4);
+
+    // Valeurs numériques (amplitudes)
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#e8b34d"; ctx.fillText("U_E = " + fmtEng(Ue, "V"), w - 8, 14);
+    ctx.fillStyle = "#5fd3a6"; ctx.fillText("U_R = " + fmtEng(Ur, "V"), w - 8, 27);
+    ctx.fillStyle = "#4fc3e8"; ctx.fillText("U_L = " + fmtEng(Ul, "V"), w - 8, 40);
+    ctx.fillStyle = "#c792ea"; ctx.fillText("U_C = " + fmtEng(Uc, "V"), w - 8, 53);
+    ctx.textAlign = "left";
+  }
+
+  function drawVector(ctx, x1, y1, x2, y2, color, label, lw){
+    if (Math.hypot(x2 - x1, y2 - y1) < 1.5) return;
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = lw || 1.8;
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    const angle = Math.atan2(y2 - y1, x2 - x1);
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - 7 * Math.cos(angle - Math.PI/6), y2 - 7 * Math.sin(angle - Math.PI/6));
+    ctx.lineTo(x2 - 7 * Math.cos(angle + Math.PI/6), y2 - 7 * Math.sin(angle + Math.PI/6));
+    ctx.fill();
+    if (label){
+      ctx.font = "10.5px sans-serif";
+      ctx.fillText(label, (x1 + x2)/2 + 4, (y1 + y2)/2 - 4);
+    }
+  }
+
+  // Bande passante d'un passe-bande : de N_1 à N_2
+  function bandOverlay(ctx, w, h, padL, padR, padT, padB, x1, x0, x2, labelAtTop){
+    ctx.save();
+    ctx.fillStyle = "rgba(95,211,166,0.10)";
+    ctx.fillRect(x1, padT, Math.max(x2 - x1, 1), h - padT - padB);
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([4, 3]);
+    ctx.strokeStyle = "#e8574f";
+    ctx.beginPath();
+    ctx.moveTo(x1, padT); ctx.lineTo(x1, h - padB);
+    ctx.moveTo(x2, padT); ctx.lineTo(x2, h - padB);
+    ctx.stroke();
+    ctx.strokeStyle = "#4fc3e8";
+    ctx.beginPath(); ctx.moveTo(x0, padT); ctx.lineTo(x0, h - padB); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = "10px sans-serif";
+    ctx.fillStyle = "#e8574f";
+    ctx.textAlign = "right"; ctx.fillText("N_1", x1 - 3, padT + 10);
+    ctx.textAlign = "left";  ctx.fillText("N_2", x2 + 3, padT + 10);
+    ctx.fillStyle = "#4fc3e8";
+    ctx.textAlign = "center"; ctx.fillText("N_0", x0, padT + 10);
+    ctx.fillStyle = "#5fd3a6";
+    ctx.textAlign = "left";
+    ctx.fillText("bande passante", padL + 4, labelAtTop ? padT + 24 : h - padB - 5);
+    ctx.restore();
+  }
+
+  function markDot(ctx, x, y, color){
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.strokeStyle = "#0d1316";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(x, y, 4, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+
+  function clampF(f){ return Math.min(Math.max(f, 1), 1e6); }
+
+  // ================= BODE =================
+  function drawBode(){ drawMagnitude(); drawPhase(); }
+
+  function drawMagnitude(){
+    const { ctx, w, h } = fitCanvas(el.magCanvas);
+    const padL = 40, padR = 12, padT = 10, padB = 22;
+    ctx.clearRect(0,0,w,h);
+
+    const dbMin = -48, dbMax = 6;
+    function dbToY(db){ return padT + (dbMax - db) / (dbMax - dbMin) * (h - padT - padB); }
+    function fx(f){
+      const t = Math.log10(f) / 6;
+      return padL + t * (w - padL - padR);
+    }
+
+    ctx.strokeStyle = "#202a30";
+    ctx.fillStyle = "#52616a";
+    ctx.font = "10px " + getComputedStyle(document.body).fontFamily;
+    ctx.lineWidth = 1;
+
+    [1,10,100,1000,10000,100000,1000000].forEach((f) => {
+      const x = fx(f);
+      ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, h-padB); ctx.stroke();
+      const label = f >= 1000 ? (f/1000)+"k" : f+"";
+      ctx.fillText(label, Math.min(x+3, w-24), h-6);
+    });
+
+    [0,-3,-6,-12,-20,-30,-40].forEach(db => {
+      const y = dbToY(db);
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w-padR, y); ctx.stroke();
+      ctx.fillText(db+"", 4, y+3);
+    });
+
+    if (state.showTheory){
+      bandOverlay(ctx, w, h, padL, padR, padT, padB, fx(clampF(f1())), fx(clampF(f0())), fx(clampF(f2())), true);
+    }
+
+    ctx.strokeStyle = "#5fd3a6";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    const N = 240;
+    for (let i=0;i<=N;i++){
+      const logf = (i/N)*6;
+      const f = Math.pow(10, logf);
+      const db = 20*Math.log10(magnitudeAt(f));
+      const x = fx(f);
+      const y = dbToY(Math.max(dbMin, db));
+      if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+
+    if (state.showTheory){
+      markDot(ctx, fx(clampF(f1())), dbToY(-3.01), "#e8574f");
+      markDot(ctx, fx(clampF(f2())), dbToY(-3.01), "#e8574f");
+      markDot(ctx, fx(clampF(f0())), dbToY(0), "#4fc3e8");
+      markDot(ctx, fx(clampF(state.freq)), dbToY(Math.max(dbMin, 20 * Math.log10(magnitudeAt(state.freq)))), "#e8b34d");
+    }
+  }
+
+  function drawPhase(){
+    const { ctx, w, h } = fitCanvas(el.phaseCanvas);
+    const padL = 40, padR = 12, padT = 10, padB = 22;
+    ctx.clearRect(0,0,w,h);
+
+    const phMin = -90, phMax = 90;
+    function phToY(p){ return padT + (phMax - p) / (phMax - phMin) * (h - padT - padB); }
+    function fx(f){
+      const t = Math.log10(f) / 6;
+      return padL + t * (w - padL - padR);
+    }
+
+    ctx.strokeStyle = "#202a30";
+    ctx.fillStyle = "#52616a";
+    ctx.font = "10px " + getComputedStyle(document.body).fontFamily;
+    ctx.lineWidth = 1;
+
+    [1,10,100,1000,10000,100000,1000000].forEach(f => {
+      const x = fx(f);
+      ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, h-padB); ctx.stroke();
+      const label = f >= 1000 ? (f/1000)+"k" : f+"";
+      ctx.fillText(label, Math.min(x+3, w-24), h-6);
+    });
+
+    [90,45,0,-45,-90].forEach(p => {
+      const y = phToY(p);
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w-padR, y); ctx.stroke();
+      ctx.fillText(p+"°", 2, y+3);
+    });
+
+    if (state.showTheory){
+      bandOverlay(ctx, w, h, padL, padR, padT, padB, fx(clampF(f1())), fx(clampF(f0())), fx(clampF(f2())), false);
+    }
+
+    ctx.strokeStyle = "#4fc3e8";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    const N = 240;
+    for (let i=0;i<=N;i++){
+      const logf = (i/N)*6;
+      const f = Math.pow(10, logf);
+      const deg = phaseAt(f) * 180/Math.PI;
+      const x = fx(f);
+      const y = phToY(deg);
+      if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+
+    if (state.showTheory){
+      markDot(ctx, fx(clampF(f1())), phToY(45), "#e8574f");
+      markDot(ctx, fx(clampF(f2())), phToY(-45), "#e8574f");
+      markDot(ctx, fx(clampF(f0())), phToY(0), "#4fc3e8");
+      markDot(ctx, fx(clampF(state.freq)), phToY(phaseAt(state.freq) * 180 / Math.PI), "#e8b34d");
+    }
+  }
+
+  // ================= OSCILLOSCOPE =================
+  function inputSample(t){
+    const f = state.freq, A = state.amp;
+    if (state.wave === "sine"){
+      return A * Math.sin(2*Math.PI*f*t);
+    } else {
+      let sum = 0;
+      for (let k=1; k<=39; k+=2){
+        sum += Math.sin(2*Math.PI*k*f*t) / k;
+      }
+      return A * (4/Math.PI) * sum;
+    }
+  }
+
+  function outputSample(t){
+    const f = state.freq, A = state.amp;
+    if (state.wave === "sine"){
+      const mag = magnitudeAt(f), ph = phaseAt(f);
+      return A * mag * Math.sin(2*Math.PI*f*t + ph);
+    } else {
+      let sum = 0;
+      for (let k=1; k<=39; k+=2){
+        const hf = k*f;
+        const mag = magnitudeAt(hf), ph = phaseAt(hf);
+        sum += (Math.sin(2*Math.PI*hf*t + ph) / k) * mag;
+      }
+      return A * (4/Math.PI) * sum;
+    }
+  }
+
+  let tCursor = 0;
+  let lastTs = null;
+
+  function drawScope(dtReal){
+    const { ctx, w, h } = fitCanvas(el.scopeCanvas);
+    ctx.clearRect(0,0,w,h);
+
+    // Récupération des sensibilités définies par les menus
+    const vSensCh1 = parseFloat(el.sensCh1.value); // Volts / div
+    const vSensCh2 = parseFloat(el.sensCh2.value); // Volts / div
+    const tSens = parseFloat(el.sensTime.value);   // Secondes / div
+
+    const numDivX = 10;
+    const numDivY = 8;
+
+    const windowDuration = tSens * numDivX;
+    tCursor += dtReal * Math.min(windowDuration / 2, 0.03);
+
+    const padL = 45, padR = 15, padT = 15, padB = 20;
+    const plotW = w - padL - padR;
+    const plotH = h - padT - padB;
+    const centerY = padT + plotH / 2;
+
+    // Calcul des positions de tension en fonction des sensibilités
+    function vToY_Ch1(v){ return centerY - (v / vSensCh1) * (plotH / numDivY); }
+    function vToY_Ch2(v){ return centerY - (v / vSensCh2) * (plotH / numDivY); }
+
+    // Dessin du quadrillage
+    ctx.strokeStyle = "#1c262c";
+    ctx.lineWidth = 1;
+    for (let i=0; i<=numDivX; i++){
+      const x = padL + i*(plotW/numDivX);
+      ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, h-padB); ctx.stroke();
+    }
+    for (let i=0; i<=numDivY; i++){
+      const y = padT + i*(plotH/numDivY);
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w-padR, y); ctx.stroke();
+    }
+
+    // Axe central (Masse 0V)
+    ctx.strokeStyle = "#33414a";
+    ctx.beginPath(); ctx.moveTo(padL, centerY); ctx.lineTo(w-padR, centerY); ctx.stroke();
+
+    // Graduations axe vertical
+    ctx.fillStyle = "#52616a";
+    ctx.font = "10px " + getComputedStyle(document.body).fontFamily;
+    ctx.fillText("0V", 22, centerY + 3);
+
+    const N = Math.min(plotW, 640);
+    const dt = windowDuration / N;
+
+    ctx.lineWidth = 2;
+
+    // Trace CH1 (Entrée - Jaune)
+    ctx.strokeStyle = "#e8b34d";
+    ctx.beginPath();
+    for (let i=0; i<=N; i++){
+      const t = tCursor - windowDuration + i*dt;
+      const v = inputSample(t);
+      const x = padL + (i/N)*plotW;
+      const y = vToY_Ch1(v);
+      if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+
+    // Trace CH2 (Sortie - Vert)
+    ctx.strokeStyle = "#5fd3a6";
+    ctx.beginPath();
+    for (let i=0; i<=N; i++){
+      const t = tCursor - windowDuration + i*dt;
+      const v = outputSample(t);
+      const x = padL + (i/N)*plotW;
+      const y = vToY_Ch2(v);
+      if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+
+  function loop(ts){
+    if (lastTs === null) lastTs = ts;
+    const dt = state.playing ? Math.min((ts - lastTs)/1000, 0.05) : 0;
+    lastTs = ts;
+    drawScope(dt);
+    requestAnimationFrame(loop);
+  }
+
+  // Init
+  state.R0 = sliderToR(+el.r0Slider.value);
+  state.L = sliderToL(+el.lSlider.value);
+  state.C = sliderToC(+el.cSlider.value);
+  state.freq = sliderToF(+el.fSlider.value);
+  state.amp = sliderToA(+el.aSlider.value);
+  updateReadouts();
+  drawBode();
+  requestAnimationFrame(loop);
+
+  window.addEventListener("resize", () => { drawBode(); drawFresnel(); });
+})();
+</script>
+
+</body>
+</html>
