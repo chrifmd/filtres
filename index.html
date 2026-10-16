@@ -161,19 +161,20 @@
     align-items: center;
     gap: 6px;
     text-decoration: none;
-    color: var(--text-secondary);
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 13px;
+    color: var(--text);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    font-family: var(--font-sans);
+    font-size: 12.5px;
     font-weight: 600;
-    padding: 0.45rem 0.9rem;
-    margin-bottom: 1.25rem;
-    transition: border-color 0.2s, color 0.2s;
+    padding: 5px 10px;
+    transition: border-color 0.15s ease, background 0.15s ease;
   }
   .btn-home:hover {
-    border-color: var(--comp-opamp);
-    color: var(--comp-opamp);
+    border-color: var(--accent);
+    background: var(--panel-alt);
+    color: var(--accent);
   }
 </style>
 </head>
