@@ -3,22 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#11161a">
+<meta name="theme-color" content="#f3f6f8">
 <title>Filtre RLC — Passe-bande</title>
 <style>
   :root{
-    --bg: #11161a;
-    --panel: #161d22;
-    --panel-alt: #1c242a;
-    --line: #2a353c;
-    --line-soft: #202a30;
-    --text: #dbe4e8;
-    --text-dim: #7c8a92;
-    --text-faint: #52616a;
-    --in-color: #e8b34d;
-    --out-color: #5fd3a6;
-    --cutoff-color: #e8574f;
-    --accent: #4fc3e8;
+    color-scheme: light;
+    --bg: #f3f6f8;
+    --panel: #ffffff;
+    --panel-alt: #eef2f5;
+    --line: #ccd6dc;
+    --line-soft: #e3e9ed;
+    --text: #1b252b;
+    --text-dim: #5a6972;
+    --text-faint: #6f7e87;
+    --in-color: #c27c00;
+    --out-color: #0f9a6b;
+    --cutoff-color: #d63b33;
+    --accent: #0a82b0;
     --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Consolas, monospace;
     --font-sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --radius: 3px;
@@ -125,7 +126,7 @@
     width: 15px; height: 15px;
     border-radius: 50%;
     background: var(--accent);
-    border: 2px solid #0d1215;
+    border: 2px solid #ffffff;
     cursor: pointer;
     margin-top: -6px;
   }
@@ -133,7 +134,7 @@
     width: 13px; height: 13px;
     border-radius: 50%;
     background: var(--accent);
-    border: 2px solid #0d1215;
+    border: 2px solid #ffffff;
     cursor: pointer;
   }
 
@@ -157,7 +158,7 @@
   .toggle-group button:last-child { border-right: none; }
   .toggle-group button.active {
     background: var(--accent);
-    color: #0b1114;
+    color: #ffffff;
     font-weight: 600;
   }
 
@@ -245,7 +246,7 @@
     width: 100%;
     border: 1px solid var(--line);
     border-radius: var(--radius);
-    background: #0d1316;
+    background: #fcfdfe;
   }
   .bode-pair {
     display: grid;
@@ -259,7 +260,7 @@
   .schematic-wrap {
     border: 1px solid var(--line);
     border-radius: var(--radius);
-    background: #0d1316;
+    background: #fcfdfe;
     padding: 4px 10px;
   }
   .schematic-wrap svg { display: block; width: 100%; max-height: 115px; }
@@ -312,7 +313,7 @@
   .theory-card {
     border: 1px solid var(--line);
     border-radius: var(--radius);
-    background: #0d1316;
+    background: #fcfdfe;
     padding: 12px 14px;
     font-size: 12px;
     line-height: 1.4;
@@ -388,8 +389,8 @@
     .slider-line { display: flex; align-items: center; gap: 12px; }
     .slider-line input { flex: 1; min-width: 0; }
     .step-btn { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 40px; height: 40px;
-      font-size: 20px; line-height: 1; color: var(--text); background: #0e1318; border: 1px solid #2a3644; border-radius: 6px; cursor: pointer; }
-    .step-btn:active { background: #232d39; border-color: var(--accent); }
+      font-size: 20px; line-height: 1; color: var(--text); background: #ffffff; border: 1px solid #c3cfd7; border-radius: 6px; cursor: pointer; }
+    .step-btn:active { background: #e3eaef; border-color: var(--accent); }
     .ctrl-row .name, .ctrl-row .val { font-size: 14px; }
     .readout-grid .item .k { font-size: 11px; }
     .readout-grid .item .v { font-size: 13px; }
@@ -453,66 +454,66 @@
             </defs>
 
             <!-- GBF -->
-            <circle cx="40" cy="55" r="14" stroke="#4fc3e8" stroke-width="1.5" fill="none"/>
-            <text x="40" y="58" fill="#dbe4e8" font-size="9" font-weight="bold" text-anchor="middle">GBF</text>
-            <path d="M40,15 L40,41 M40,69 L40,95" stroke="#7c8a92" stroke-width="1.5"/>
+            <circle cx="40" cy="55" r="14" stroke="#0a82b0" stroke-width="1.5" fill="none"/>
+            <text x="40" y="58" fill="#1b252b" font-size="9" font-weight="bold" text-anchor="middle">GBF</text>
+            <path d="M40,15 L40,41 M40,69 L40,95" stroke="#5a6972" stroke-width="1.5"/>
 
             <!-- Flèche u_E(t) -->
-            <g color="#e568a8">
+            <g color="#c2336f">
               <line x1="68" y1="88" x2="68" y2="22" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)"/>
               <text x="75" y="58" fill="currentColor" font-size="12" font-weight="bold">u<tspan baseline-shift="sub" font-size="8">E</tspan>(t)</text>
             </g>
 
             <!-- Ligne supérieure + Voie Y1 + K -->
-            <path d="M40,15 L95,15" stroke="#7c8a92" stroke-width="1.5"/>
-            <path d="M95,15 L95,7" stroke="#7c8a92" stroke-width="1.2" marker-end="url(#arrow)"/>
-            <text x="95" y="0" fill="#dbe4e8" font-size="10" font-weight="bold" text-anchor="middle">Y<tspan baseline-shift="sub" font-size="7">1</tspan></text>
-            <text x="85" y="12" fill="#dbe4e8" font-size="11" font-weight="bold">E</text>
+            <path d="M40,15 L95,15" stroke="#5a6972" stroke-width="1.5"/>
+            <path d="M95,15 L95,7" stroke="#5a6972" stroke-width="1.2" marker-end="url(#arrow)"/>
+            <text x="95" y="0" fill="#1b252b" font-size="10" font-weight="bold" text-anchor="middle">Y<tspan baseline-shift="sub" font-size="7">1</tspan></text>
+            <text x="85" y="12" fill="#1b252b" font-size="11" font-weight="bold">E</text>
 
             <!-- Interrupteur K -->
-            <line x1="95" y1="15" x2="115" y2="8" stroke="#dbe4e8" stroke-width="1.5"/>
-            <circle cx="95" cy="15" r="2" fill="#7c8a92"/>
-            <circle cx="120" cy="15" r="2" fill="#7c8a92"/>
-            <text x="107" y="0" fill="#dbe4e8" font-size="11">K</text>
+            <line x1="95" y1="15" x2="115" y2="8" stroke="#1b252b" stroke-width="1.5"/>
+            <circle cx="95" cy="15" r="2" fill="#5a6972"/>
+            <circle cx="120" cy="15" r="2" fill="#5a6972"/>
+            <text x="107" y="0" fill="#1b252b" font-size="11">K</text>
 
             <!-- Condensateur C -->
-            <path d="M120,15 L145,15" stroke="#7c8a92" stroke-width="1.5"/>
-            <line x1="145" y1="3" x2="145" y2="27" stroke="#5fd3a6" stroke-width="2"/>
-            <line x1="152" y1="3" x2="152" y2="27" stroke="#5fd3a6" stroke-width="2"/>
-            <path d="M152,15 L180,15" stroke="#7c8a92" stroke-width="1.5"/>
-            <text x="148" y="-2" fill="#5fd3a6" font-size="11" font-weight="bold" text-anchor="middle">C</text>
+            <path d="M120,15 L145,15" stroke="#5a6972" stroke-width="1.5"/>
+            <line x1="145" y1="3" x2="145" y2="27" stroke="#0f9a6b" stroke-width="2"/>
+            <line x1="152" y1="3" x2="152" y2="27" stroke="#0f9a6b" stroke-width="2"/>
+            <path d="M152,15 L180,15" stroke="#5a6972" stroke-width="1.5"/>
+            <text x="148" y="-2" fill="#0f9a6b" font-size="11" font-weight="bold" text-anchor="middle">C</text>
 
             <!-- Inductance L, r -->
-            <path d="M180,15 A7,7 0 0 1 194,15 A7,7 0 0 1 208,15 A7,7 0 0 1 222,15 A7,7 0 0 1 236,15" stroke="#4fc3e8" stroke-width="1.5" fill="none"/>
-            <path d="M236,15 L280,15" stroke="#7c8a92" stroke-width="1.5"/>
-            <text x="208" y="-2" fill="#4fc3e8" font-size="11" font-weight="bold" text-anchor="middle">L, r</text>
+            <path d="M180,15 A7,7 0 0 1 194,15 A7,7 0 0 1 208,15 A7,7 0 0 1 222,15 A7,7 0 0 1 236,15" stroke="#0a82b0" stroke-width="1.5" fill="none"/>
+            <path d="M236,15 L280,15" stroke="#5a6972" stroke-width="1.5"/>
+            <text x="208" y="-2" fill="#0a82b0" font-size="11" font-weight="bold" text-anchor="middle">L, r</text>
 
             <!-- S et Voie Y2 -->
-            <text x="268" y="10" fill="#dbe4e8" font-size="11" font-weight="bold">S</text>
-            <path d="M280,15 L330,15" stroke="#7c8a92" stroke-width="1.5" marker-end="url(#arrow)"/>
-            <text x="338" y="13" fill="#dbe4e8" font-size="10" font-weight="bold">Y<tspan baseline-shift="sub" font-size="7">2</tspan></text>
+            <text x="268" y="10" fill="#1b252b" font-size="11" font-weight="bold">S</text>
+            <path d="M280,15 L330,15" stroke="#5a6972" stroke-width="1.5" marker-end="url(#arrow)"/>
+            <text x="338" y="13" fill="#1b252b" font-size="10" font-weight="bold">Y<tspan baseline-shift="sub" font-size="7">2</tspan></text>
 
             <!-- Résistance R0 -->
-            <path d="M280,15 L280,35" stroke="#7c8a92" stroke-width="1.5"/>
-            <rect x="273" y="35" width="14" height="30" fill="none" stroke="#e8b34d" stroke-width="1.5"/>
-            <path d="M280,65 L280,95" stroke="#7c8a92" stroke-width="1.5"/>
-            <text x="252" y="53" fill="#e8b34d" font-size="11" font-weight="bold">R<tspan baseline-shift="sub" font-size="8">0</tspan></text>
+            <path d="M280,15 L280,35" stroke="#5a6972" stroke-width="1.5"/>
+            <rect x="273" y="35" width="14" height="30" fill="none" stroke="#c27c00" stroke-width="1.5"/>
+            <path d="M280,65 L280,95" stroke="#5a6972" stroke-width="1.5"/>
+            <text x="252" y="53" fill="#c27c00" font-size="11" font-weight="bold">R<tspan baseline-shift="sub" font-size="8">0</tspan></text>
 
             <!-- Flèche u_S(t) -->
-            <g color="#4fc3e8">
+            <g color="#0a82b0">
               <line x1="302" y1="88" x2="302" y2="22" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)"/>
               <text x="310" y="58" fill="currentColor" font-size="12" font-weight="bold">u<tspan baseline-shift="sub" font-size="8">S</tspan>(t)</text>
             </g>
 
             <!-- Masse M -->
-            <path d="M40,95 L280,95" stroke="#7c8a92" stroke-width="1.5"/>
-            <text x="288" y="92" fill="#dbe4e8" font-size="12" font-weight="bold">M</text>
+            <path d="M40,95 L280,95" stroke="#5a6972" stroke-width="1.5"/>
+            <text x="288" y="92" fill="#1b252b" font-size="12" font-weight="bold">M</text>
 
             <!-- Symbole Terre -->
-            <line x1="270" y1="95" x2="290" y2="95" stroke="#7c8a92" stroke-width="1.5"/>
-            <line x1="273" y1="99" x2="287" y2="99" stroke="#7c8a92" stroke-width="1.5"/>
-            <line x1="276" y1="103" x2="284" y2="103" stroke="#7c8a92" stroke-width="1.5"/>
-            <line x1="279" y1="107" x2="281" y2="107" stroke="#7c8a92" stroke-width="1.5"/>
+            <line x1="270" y1="95" x2="290" y2="95" stroke="#5a6972" stroke-width="1.5"/>
+            <line x1="273" y1="99" x2="287" y2="99" stroke="#5a6972" stroke-width="1.5"/>
+            <line x1="276" y1="103" x2="284" y2="103" stroke="#5a6972" stroke-width="1.5"/>
+            <line x1="279" y1="107" x2="281" y2="107" stroke="#5a6972" stroke-width="1.5"/>
           </svg>
         </div>
       </div>
@@ -612,7 +613,7 @@
               <span class="legend">
                 <span><i style="background:var(--out-color)"></i>U<sub>R</sub> = U<sub>S</sub></span>
                 <span><i style="background:var(--accent)"></i>U<sub>L</sub></span>
-                <span><i style="background:#c792ea"></i>U<sub>C</sub></span>
+                <span><i style="background:#9b4fd1"></i>U<sub>C</sub></span>
                 <span><i style="background:var(--in-color)"></i>U<sub>E</sub></span>
               </span>
             </div>
@@ -936,46 +937,46 @@
     const yL = oy - Ul * scale, yE = oy - D * scale;
 
     ctx.lineWidth = 1;
-    ctx.strokeStyle = "#33414a";
+    ctx.strokeStyle = "#c8d2d9";
     ctx.beginPath(); ctx.moveTo(ox - 10, oy); ctx.lineTo(w - 10, oy); ctx.stroke();
-    ctx.fillStyle = "#7c8a92";
+    ctx.fillStyle = "#5a6972";
     ctx.font = "10px sans-serif";
     ctx.fillText("i (référence)", w - 78, oy + 14);
 
     // U_E (dessiné en dessous), puis la chaîne U_R -> U_L -> U_C
-    drawVector(ctx, ox, oy, x1, yE, "#e8b34d", null, 3);
-    drawVector(ctx, ox, oy, x1, oy, "#5fd3a6", null, 1.8);
-    drawVector(ctx, x1, oy, x1, yL, "#4fc3e8", null, 1.8);
+    drawVector(ctx, ox, oy, x1, yE, "#c27c00", null, 3);
+    drawVector(ctx, ox, oy, x1, oy, "#0f9a6b", null, 1.8);
+    drawVector(ctx, x1, oy, x1, yL, "#0a82b0", null, 1.8);
     ctx.save();
     ctx.setLineDash([2, 3]);
-    ctx.strokeStyle = "#52616a";
+    ctx.strokeStyle = "#6f7e87";
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(x1, yL); ctx.lineTo(x2, yL); ctx.moveTo(x2, yE); ctx.lineTo(x1, yE); ctx.stroke();
     ctx.restore();
-    drawVector(ctx, x2, yL, x2, yE, "#c792ea", null, 1.8);
+    drawVector(ctx, x2, yL, x2, yE, "#9b4fd1", null, 1.8);
 
     // Étiquettes
     ctx.font = "10.5px sans-serif";
-    ctx.fillStyle = "#5fd3a6"; ctx.fillText("U_R", (ox + x1) / 2 - 6, oy + 14);
-    if (Math.abs(oy - yL) > 12){ ctx.fillStyle = "#4fc3e8"; ctx.fillText("U<sub>L</sub>", x1 - 26, (oy + yL) / 2 + 4); }
-    if (Math.abs(yL - yE) > 12){ ctx.fillStyle = "#c792ea"; ctx.fillText("U_C", x2 + 5, (yL + yE) / 2 + 4); }
-    if (Math.hypot(x1 - ox, yE - oy) > 20){ ctx.fillStyle = "#e8b34d"; ctx.fillText("U_E", (ox + x1) / 2 - 26, (oy + yE) / 2 - 4); }
+    ctx.fillStyle = "#0f9a6b"; ctx.fillText("U_R", (ox + x1) / 2 - 6, oy + 14);
+    if (Math.abs(oy - yL) > 12){ ctx.fillStyle = "#0a82b0"; ctx.fillText("U<sub>L</sub>", x1 - 26, (oy + yL) / 2 + 4); }
+    if (Math.abs(yL - yE) > 12){ ctx.fillStyle = "#9b4fd1"; ctx.fillText("U_C", x2 + 5, (yL + yE) / 2 + 4); }
+    if (Math.hypot(x1 - ox, yE - oy) > 20){ ctx.fillStyle = "#c27c00"; ctx.fillText("U_E", (ox + x1) / 2 - 26, (oy + yE) / 2 - 4); }
 
     // Angle φ = −(angle de U_E avec i)
     const theta = Math.atan2(D, Ur);
-    ctx.strokeStyle = "#e8574f";
+    ctx.strokeStyle = "#d63b33";
     ctx.beginPath(); ctx.arc(ox, oy, 24, Math.min(-theta, 0), Math.max(-theta, 0), false); ctx.stroke();
-    ctx.fillStyle = "#e8574f";
+    ctx.fillStyle = "#d63b33";
     const aMag = Math.max(Math.abs(theta / 2), 0.15), a = theta >= 0 ? -aMag : aMag;
     const phiDeg = -theta * 180 / Math.PI;
     ctx.fillText("φ = " + (phiDeg >= 0 ? "+" : "") + phiDeg.toFixed(0) + "°", ox + 40 * Math.cos(a) - 6, oy + 40 * Math.sin(a) + 4);
 
     // Valeurs numériques (amplitudes)
     ctx.textAlign = "right";
-    ctx.fillStyle = "#e8b34d"; ctx.fillText("U_E = " + fmtEng(Ue, "V"), w - 8, 14);
-    ctx.fillStyle = "#5fd3a6"; ctx.fillText("U_R = " + fmtEng(Ur, "V"), w - 8, 27);
-    ctx.fillStyle = "#4fc3e8"; ctx.fillText("U_L = " + fmtEng(Ul, "V"), w - 8, 40);
-    ctx.fillStyle = "#c792ea"; ctx.fillText("U_C = " + fmtEng(Uc, "V"), w - 8, 53);
+    ctx.fillStyle = "#c27c00"; ctx.fillText("U_E = " + fmtEng(Ue, "V"), w - 8, 14);
+    ctx.fillStyle = "#0f9a6b"; ctx.fillText("U_R = " + fmtEng(Ur, "V"), w - 8, 27);
+    ctx.fillStyle = "#0a82b0"; ctx.fillText("U_L = " + fmtEng(Ul, "V"), w - 8, 40);
+    ctx.fillStyle = "#9b4fd1"; ctx.fillText("U_C = " + fmtEng(Uc, "V"), w - 8, 53);
     ctx.textAlign = "left";
   }
 
@@ -1000,25 +1001,25 @@
   // Bande passante d'un passe-bande : de N_1 à N_2
   function bandOverlay(ctx, w, h, padL, padR, padT, padB, x1, x0, x2, labelAtTop){
     ctx.save();
-    ctx.fillStyle = "rgba(95,211,166,0.10)";
+    ctx.fillStyle = "rgba(15,154,107,0.10)";
     ctx.fillRect(x1, padT, Math.max(x2 - x1, 1), h - padT - padB);
     ctx.lineWidth = 1.2;
     ctx.setLineDash([4, 3]);
-    ctx.strokeStyle = "#e8574f";
+    ctx.strokeStyle = "#d63b33";
     ctx.beginPath();
     ctx.moveTo(x1, padT); ctx.lineTo(x1, h - padB);
     ctx.moveTo(x2, padT); ctx.lineTo(x2, h - padB);
     ctx.stroke();
-    ctx.strokeStyle = "#4fc3e8";
+    ctx.strokeStyle = "#0a82b0";
     ctx.beginPath(); ctx.moveTo(x0, padT); ctx.lineTo(x0, h - padB); ctx.stroke();
     ctx.setLineDash([]);
     ctx.font = "10px sans-serif";
-    ctx.fillStyle = "#e8574f";
+    ctx.fillStyle = "#d63b33";
     ctx.textAlign = "right"; ctx.fillText("N_1", x1 - 3, padT + 10);
     ctx.textAlign = "left";  ctx.fillText("N_2", x2 + 3, padT + 10);
-    ctx.fillStyle = "#4fc3e8";
+    ctx.fillStyle = "#0a82b0";
     ctx.textAlign = "center"; ctx.fillText("N_0", x0, padT + 10);
-    ctx.fillStyle = "#5fd3a6";
+    ctx.fillStyle = "#0f9a6b";
     ctx.textAlign = "left";
     ctx.fillText("bande passante", padL + 4, labelAtTop ? padT + 24 : h - padB - 5);
     ctx.restore();
@@ -1027,7 +1028,7 @@
   function markDot(ctx, x, y, color){
     ctx.save();
     ctx.fillStyle = color;
-    ctx.strokeStyle = "#0d1316";
+    ctx.strokeStyle = "#fcfdfe";
     ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.arc(x, y, 4, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
     ctx.restore();
@@ -1050,8 +1051,8 @@
       return padL + t * (w - padL - padR);
     }
 
-    ctx.strokeStyle = "#202a30";
-    ctx.fillStyle = "#52616a";
+    ctx.strokeStyle = "#e3e9ed";
+    ctx.fillStyle = "#6f7e87";
     ctx.font = "10px " + getComputedStyle(document.body).fontFamily;
     ctx.lineWidth = 1;
 
@@ -1072,7 +1073,7 @@
       bandOverlay(ctx, w, h, padL, padR, padT, padB, fx(clampF(f1())), fx(clampF(f0())), fx(clampF(f2())), true);
     }
 
-    ctx.strokeStyle = "#5fd3a6";
+    ctx.strokeStyle = "#0f9a6b";
     ctx.lineWidth = 2;
     ctx.beginPath();
     const N = 240;
@@ -1087,10 +1088,10 @@
     ctx.stroke();
 
     if (state.showTheory){
-      markDot(ctx, fx(clampF(f1())), dbToY(-3.01), "#e8574f");
-      markDot(ctx, fx(clampF(f2())), dbToY(-3.01), "#e8574f");
-      markDot(ctx, fx(clampF(f0())), dbToY(0), "#4fc3e8");
-      markDot(ctx, fx(clampF(state.freq)), dbToY(Math.max(dbMin, 20 * Math.log10(magnitudeAt(state.freq)))), "#e8b34d");
+      markDot(ctx, fx(clampF(f1())), dbToY(-3.01), "#d63b33");
+      markDot(ctx, fx(clampF(f2())), dbToY(-3.01), "#d63b33");
+      markDot(ctx, fx(clampF(f0())), dbToY(0), "#0a82b0");
+      markDot(ctx, fx(clampF(state.freq)), dbToY(Math.max(dbMin, 20 * Math.log10(magnitudeAt(state.freq)))), "#c27c00");
     }
   }
 
@@ -1106,8 +1107,8 @@
       return padL + t * (w - padL - padR);
     }
 
-    ctx.strokeStyle = "#202a30";
-    ctx.fillStyle = "#52616a";
+    ctx.strokeStyle = "#e3e9ed";
+    ctx.fillStyle = "#6f7e87";
     ctx.font = "10px " + getComputedStyle(document.body).fontFamily;
     ctx.lineWidth = 1;
 
@@ -1128,7 +1129,7 @@
       bandOverlay(ctx, w, h, padL, padR, padT, padB, fx(clampF(f1())), fx(clampF(f0())), fx(clampF(f2())), false);
     }
 
-    ctx.strokeStyle = "#4fc3e8";
+    ctx.strokeStyle = "#0a82b0";
     ctx.lineWidth = 2;
     ctx.beginPath();
     const N = 240;
@@ -1143,10 +1144,10 @@
     ctx.stroke();
 
     if (state.showTheory){
-      markDot(ctx, fx(clampF(f1())), phToY(45), "#e8574f");
-      markDot(ctx, fx(clampF(f2())), phToY(-45), "#e8574f");
-      markDot(ctx, fx(clampF(f0())), phToY(0), "#4fc3e8");
-      markDot(ctx, fx(clampF(state.freq)), phToY(phaseAt(state.freq) * 180 / Math.PI), "#e8b34d");
+      markDot(ctx, fx(clampF(f1())), phToY(45), "#d63b33");
+      markDot(ctx, fx(clampF(f2())), phToY(-45), "#d63b33");
+      markDot(ctx, fx(clampF(f0())), phToY(0), "#0a82b0");
+      markDot(ctx, fx(clampF(state.freq)), phToY(phaseAt(state.freq) * 180 / Math.PI), "#c27c00");
     }
   }
 
@@ -1208,7 +1209,7 @@
     function vToY_Ch2(v){ return centerY - (v / vSensCh2) * (plotH / numDivY); }
 
     // Dessin du quadrillage
-    ctx.strokeStyle = "#1c262c";
+    ctx.strokeStyle = "#e5ebef";
     ctx.lineWidth = 1;
     for (let i=0; i<=numDivX; i++){
       const x = padL + i*(plotW/numDivX);
@@ -1220,11 +1221,11 @@
     }
 
     // Axe central (Masse 0V)
-    ctx.strokeStyle = "#33414a";
+    ctx.strokeStyle = "#c8d2d9";
     ctx.beginPath(); ctx.moveTo(padL, centerY); ctx.lineTo(w-padR, centerY); ctx.stroke();
 
     // Graduations axe vertical
-    ctx.fillStyle = "#52616a";
+    ctx.fillStyle = "#6f7e87";
     ctx.font = "10px " + getComputedStyle(document.body).fontFamily;
     ctx.fillText("0V", 22, centerY + 3);
 
@@ -1234,7 +1235,7 @@
     ctx.lineWidth = 2;
 
     // Trace CH1 (Entrée - Jaune)
-    ctx.strokeStyle = "#e8b34d";
+    ctx.strokeStyle = "#c27c00";
     ctx.beginPath();
     for (let i=0; i<=N; i++){
       const t = tCursor - windowDuration + i*dt;
@@ -1246,7 +1247,7 @@
     ctx.stroke();
 
     // Trace CH2 (Sortie - Vert)
-    ctx.strokeStyle = "#5fd3a6";
+    ctx.strokeStyle = "#0f9a6b";
     ctx.beginPath();
     for (let i=0; i<=N; i++){
       const t = tCursor - windowDuration + i*dt;

@@ -3,22 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#11161a">
+<meta name="theme-color" content="#f3f6f8">
 <title>Filtre RC — Passe-haut</title>
 <style>
   :root{
-    --bg: #11161a;
-    --panel: #161d22;
-    --panel-alt: #1c242a;
-    --line: #2a353c;
-    --line-soft: #202a30;
-    --text: #dbe4e8;
-    --text-dim: #7c8a92;
-    --text-faint: #52616a;
-    --in-color: #e8b34d;
-    --out-color: #5fd3a6;
-    --cutoff-color: #e8574f;
-    --accent: #4fc3e8;
+    color-scheme: light;
+    --bg: #f3f6f8;
+    --panel: #ffffff;
+    --panel-alt: #eef2f5;
+    --line: #ccd6dc;
+    --line-soft: #e3e9ed;
+    --text: #1b252b;
+    --text-dim: #5a6972;
+    --text-faint: #6f7e87;
+    --in-color: #c27c00;
+    --out-color: #0f9a6b;
+    --cutoff-color: #d63b33;
+    --accent: #0a82b0;
     --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Consolas, monospace;
     --font-sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --radius: 3px;
@@ -164,7 +165,7 @@
     width: 15px; height: 15px;
     border-radius: 50%;
     background: var(--accent);
-    border: 2px solid #0d1215;
+    border: 2px solid #ffffff;
     cursor: pointer;
     margin-top: -6px;
   }
@@ -172,7 +173,7 @@
     width: 13px; height: 13px;
     border-radius: 50%;
     background: var(--accent);
-    border: 2px solid #0d1215;
+    border: 2px solid #ffffff;
     cursor: pointer;
   }
 
@@ -196,7 +197,7 @@
   .toggle-group button:last-child { border-right: none; }
   .toggle-group button.active {
     background: var(--accent);
-    color: #0b1114;
+    color: #ffffff;
     font-weight: 600;
   }
 
@@ -308,7 +309,7 @@
     width: 100%;
     border: 1px solid var(--line);
     border-radius: var(--radius);
-    background: #0d1316;
+    background: #fcfdfe;
   }
   .bode-pair {
     display: grid;
@@ -323,16 +324,16 @@
   .schematic-wrap {
     border: 1px solid var(--line);
     border-radius: var(--radius);
-    background: #0d1316;
+    background: #fcfdfe;
     padding: 4px 10px;
     max-width: 500px;
     margin: 0 auto;
   }
   .schematic-wrap svg { display: block; width: 100%; height: auto; }
   .sch-wire   { stroke: var(--text-dim); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-  .sch-arrow  { stroke: #e06c75; stroke-width: 1.8; fill: none; }
-  .sch-arrow-head { fill: #e06c75; }
-  .sch-comp   { stroke: var(--accent); stroke-width: 1.8; fill: rgba(79,195,232,0.06); }
+  .sch-arrow  { stroke: #c23b47; stroke-width: 1.8; fill: none; }
+  .sch-arrow-head { fill: #c23b47; }
+  .sch-comp   { stroke: var(--accent); stroke-width: 1.8; fill: rgba(10,130,176,0.06); }
   .sch-node   { fill: var(--text); }
   .sch-label  { fill: var(--text); font-size: 12px; font-family: var(--font-sans); }
 
@@ -355,7 +356,7 @@
   .theory-card {
     border: 1px solid var(--line);
     border-radius: var(--radius);
-    background: #0d1316;
+    background: #fcfdfe;
     padding: 12px 14px;
     font-size: 12px;
     line-height: 1.4;
@@ -435,8 +436,8 @@
     .slider-line { display: flex; align-items: center; gap: 12px; }
     .slider-line input { flex: 1; min-width: 0; }
     .step-btn { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 40px; height: 40px;
-      font-size: 20px; line-height: 1; color: var(--text); background: #0e1318; border: 1px solid #2a3644; border-radius: 6px; cursor: pointer; }
-    .step-btn:active { background: #232d39; border-color: var(--accent); }
+      font-size: 20px; line-height: 1; color: var(--text); background: #ffffff; border: 1px solid #c3cfd7; border-radius: 6px; cursor: pointer; }
+    .step-btn:active { background: #e3eaef; border-color: var(--accent); }
     .ctrl-row .name, .ctrl-row .val { font-size: 14px; }
     .readout-grid .item .k { font-size: 11px; }
     .readout-grid .item .v { font-size: 13px; }
@@ -538,11 +539,11 @@
             <!-- Flèches uE et uS -->
             <path d="M18,88 L18,32" class="sch-arrow"/>
             <polygon points="18,25 15,33 21,33" class="sch-arrow-head"/>
-            <text x="3" y="60" class="sch-label" fill="#e06c75">u<tspan baseline-shift="sub" font-size="8">E</tspan></text>
+            <text x="3" y="60" class="sch-label" fill="#c23b47">u<tspan baseline-shift="sub" font-size="8">E</tspan></text>
 
             <path d="M245,88 L245,32" class="sch-arrow"/>
             <polygon points="245,25 241,33 249,33" class="sch-arrow-head"/>
-            <text x="250" y="60" class="sch-label" fill="#e06c75">u<tspan baseline-shift="sub" font-size="8">S</tspan></text>
+            <text x="250" y="60" class="sch-label" fill="#c23b47">u<tspan baseline-shift="sub" font-size="8">S</tspan></text>
           </svg>
         </div>
       </div>
@@ -893,31 +894,31 @@
     const Uc = state.amp * Math.sin(phi);
 
     ctx.lineWidth = 1;
-    ctx.strokeStyle = "#33414a";
+    ctx.strokeStyle = "#c8d2d9";
     ctx.beginPath(); ctx.moveTo(ox - 10, oy); ctx.lineTo(w - 10, oy); ctx.stroke();
-    ctx.fillStyle = "#7c8a92";
+    ctx.fillStyle = "#5a6972";
     ctx.font = "10px sans-serif";
     ctx.fillText("i (référence)", w - 78, oy - 6);
 
     ctx.setLineDash([3, 4]);
-    ctx.strokeStyle = "#2a353c";
+    ctx.strokeStyle = "#ccd6dc";
     ctx.beginPath(); ctx.arc(ox, oy, state.amp * scale, 0, Math.PI / 2); ctx.stroke();
     ctx.setLineDash([]);
 
     const usX = ox + Us * scale, usY = oy;
     const ucX = usX, ucY = oy + Uc * scale;
-    drawVector(ctx, ox, oy, usX, usY, "#5fd3a6", "U_S");
-    drawVector(ctx, usX, usY, ucX, ucY, "#4fc3e8", "U_C1");
-    drawVector(ctx, ox, oy, ucX, ucY, "#e8b34d", "U_E");
+    drawVector(ctx, ox, oy, usX, usY, "#0f9a6b", "U_S");
+    drawVector(ctx, usX, usY, ucX, ucY, "#0a82b0", "U_C1");
+    drawVector(ctx, ox, oy, ucX, ucY, "#c27c00", "U_E");
 
     if (Us * scale > 10 && Uc * scale > 10){
-      ctx.strokeStyle = "#52616a";
+      ctx.strokeStyle = "#6f7e87";
       ctx.beginPath(); ctx.moveTo(usX - 6, usY); ctx.lineTo(usX - 6, usY + 6); ctx.lineTo(usX, usY + 6); ctx.stroke();
     }
 
-    ctx.strokeStyle = "#e8574f";
+    ctx.strokeStyle = "#d63b33";
     ctx.beginPath(); ctx.arc(ox, oy, 24, 0, phi, false); ctx.stroke();
-    ctx.fillStyle = "#e8574f";
+    ctx.fillStyle = "#d63b33";
     const a = Math.max(phi / 2, 0.15);
     ctx.fillText("φ = " + (phi * 180 / Math.PI).toFixed(0) + "°", ox + 34 * Math.cos(a), oy + 34 * Math.sin(a) + 4);
   }
@@ -951,18 +952,18 @@
     const fc = cutoffFreq();
     const xc = fx(Math.min(Math.max(fc, 1), 1e6), w, padL, padR);
     ctx.save();
-    ctx.fillStyle = "rgba(95,211,166,0.09)";
+    ctx.fillStyle = "rgba(15,154,107,0.09)";
     ctx.fillRect(xc, padT, w - padR - xc, h - padT - padB);
     ctx.setLineDash([4, 3]);
-    ctx.strokeStyle = "#e8574f";
+    ctx.strokeStyle = "#d63b33";
     ctx.lineWidth = 1.2;
     ctx.beginPath(); ctx.moveTo(xc, padT); ctx.lineTo(xc, h - padB); ctx.stroke();
     ctx.setLineDash([]);
     ctx.font = "10px sans-serif";
-    ctx.fillStyle = "#e8574f";
+    ctx.fillStyle = "#d63b33";
     ctx.textAlign = "left";
     ctx.fillText("N_c", xc + 3, bandAtBottom ? padT + 10 : h - padB - 5);
-    ctx.fillStyle = "#5fd3a6";
+    ctx.fillStyle = "#0f9a6b";
     ctx.textAlign = "right";
     ctx.fillText("bande passante", w - padR - 4, bandAtBottom ? h - padB - 5 : padT + 10);
     ctx.restore();
@@ -971,7 +972,7 @@
   function markDot(ctx, x, y, color){
     ctx.save();
     ctx.fillStyle = color;
-    ctx.strokeStyle = "#0d1316";
+    ctx.strokeStyle = "#fcfdfe";
     ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.arc(x, y, 4, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
     ctx.restore();
@@ -992,8 +993,8 @@
     const dbMin = -40, dbMax = 5;
     function dbToY(db){ return padT + (dbMax - db) / (dbMax - dbMin) * (h - padT - padB); }
 
-    ctx.strokeStyle = "#202a30";
-    ctx.fillStyle = "#52616a";
+    ctx.strokeStyle = "#e3e9ed";
+    ctx.fillStyle = "#6f7e87";
     ctx.font = "10px sans-serif";
     
     [1,10,100,1000,10000,100000,1000000].forEach(f => {
@@ -1010,7 +1011,7 @@
 
     if (state.showTheory) bandOverlay(ctx, w, h, padL, padR, padT, padB, true);
 
-    ctx.strokeStyle = "#5fd3a6";
+    ctx.strokeStyle = "#0f9a6b";
     ctx.lineWidth = 1.8;
     ctx.beginPath();
     for (let i=0; i<=200; i++){
@@ -1024,7 +1025,7 @@
 
     if (state.showTheory){
       const db = 20 * Math.log10(magnitudeAt(state.freq));
-      markDot(ctx, fx(clampF(state.freq), w, padL, padR), dbToY(Math.max(dbMin, db)), "#e8b34d");
+      markDot(ctx, fx(clampF(state.freq), w, padL, padR), dbToY(Math.max(dbMin, db)), "#c27c00");
     }
   }
 
@@ -1035,8 +1036,8 @@
 
     function phToY(p){ return padT + (90 - p) / 90 * (h - padT - padB); }
 
-    ctx.strokeStyle = "#202a30";
-    ctx.fillStyle = "#52616a";
+    ctx.strokeStyle = "#e3e9ed";
+    ctx.fillStyle = "#6f7e87";
     ctx.font = "10px sans-serif";
 
     [1,10,100,1000,10000,100000,1000000].forEach(f => {
@@ -1053,7 +1054,7 @@
 
     if (state.showTheory) bandOverlay(ctx, w, h, padL, padR, padT, padB, false);
 
-    ctx.strokeStyle = "#4fc3e8";
+    ctx.strokeStyle = "#0a82b0";
     ctx.lineWidth = 1.8;
     ctx.beginPath();
     for (let i=0; i<=200; i++){
@@ -1066,8 +1067,8 @@
     ctx.stroke();
 
     if (state.showTheory){
-      markDot(ctx, fx(clampF(cutoffFreq()), w, padL, padR), phToY(45), "#e8574f");
-      markDot(ctx, fx(clampF(state.freq), w, padL, padR), phToY(phaseAt(state.freq) * 180 / Math.PI), "#e8b34d");
+      markDot(ctx, fx(clampF(cutoffFreq()), w, padL, padR), phToY(45), "#d63b33");
+      markDot(ctx, fx(clampF(state.freq), w, padL, padR), phToY(phaseAt(state.freq) * 180 / Math.PI), "#c27c00");
     }
   }
 
@@ -1090,7 +1091,7 @@
     const plotH = h - padT - padB;
 
     // Grille 10x8 divisions
-    ctx.strokeStyle = "#1c262c";
+    ctx.strokeStyle = "#e5ebef";
     ctx.lineWidth = 1;
     for (let i=0; i<=10; i++){
       const x = padL + i*(plotW/10);
@@ -1102,14 +1103,14 @@
     }
 
     // Axe zéro
-    ctx.strokeStyle = "#33414a";
+    ctx.strokeStyle = "#c8d2d9";
     ctx.beginPath(); ctx.moveTo(padL, padT + plotH/2); ctx.lineTo(w-padR, padT + plotH/2); ctx.stroke();
 
     const N = 400;
     const dt = totalTime / N;
 
     // Signal Y1
-    ctx.strokeStyle = "#e8b34d";
+    ctx.strokeStyle = "#c27c00";
     ctx.lineWidth = 2;
     ctx.beginPath();
     for (let i=0; i<=N; i++){
@@ -1124,7 +1125,7 @@
     ctx.stroke();
 
     // Signal Y2
-    ctx.strokeStyle = "#5fd3a6";
+    ctx.strokeStyle = "#0f9a6b";
     ctx.beginPath();
     const mag = magnitudeAt(state.freq);
     const ph = phaseAt(state.freq);
